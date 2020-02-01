@@ -3,10 +3,30 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 class Square extends React.Component {
+  constructor(props) {
+    // すべてのコンストラクタはsuper()の呼び出しから始める
+    super(props);
+    // stateの初期化
+    // stateはmutableなもの
+    // チュートリアルコードではpropsと同要素名となっているが、違うものを指すため変更している
+    this.state = {displayValue: null};
+  }
+
   render() {
     return (
-      <button className="square">
-        {/* TODO */}
+      // 盤目クリック時に確認ダイアログを表示する
+      // <button className="square" onClick={function() {alert('Are you sure?')}}>
+      // アロー関数で記述する
+      // <button className="square" onClick={() => {alert('Are you sure?')}}>
+      // setStateメソッドでstateのvalueを書き変える
+      <button
+        className="square"
+        onClick={() => {this.setState({displayValue: 'X'})}}
+      >
+        {/* 受け取った引数はthis.propsで取得する */}
+        {/* {this.props.value} */}
+        {/* stateのvalueを取得する */}
+        {this.state.displayValue}
       </button>
     );
   }
@@ -14,7 +34,9 @@ class Square extends React.Component {
 
 class Board extends React.Component {
   renderSquare(i) {
-    return <Square />;
+    // 受け取った引数をvalueという名前のprposでSquareコンポーネントに渡す
+    // propsはimmutableなもの
+    return <Square value={i}/>;
   }
 
   render() {
@@ -24,6 +46,7 @@ class Board extends React.Component {
       <div>
         <div className="status">{status}</div>
         <div className="board-row">
+          {/* renderSquareメソッドを引数0で呼び出す */}
           {this.renderSquare(0)}
           {this.renderSquare(1)}
           {this.renderSquare(2)}
