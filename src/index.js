@@ -25,6 +25,17 @@ function calculateWinner(squares) {
       return squares[a]
     }
   }
+  // 勝敗がつかなかった場合の処理
+  let drawFlg = true;
+  for (let i=0; i < squares.length; i++) {
+    if (squares[i] === '-' ) {
+      drawFlg = false;
+      break;
+    }
+  }
+  if (drawFlg) {
+    return 'draw'
+  }
   // 勝ち配列に一致しない場合、nullを返却する
   return null
 }
@@ -132,22 +143,18 @@ class Board extends React.Component {
     let winner = calculateWinner(this.state.squares);
     let status;
     if (winner) {
-      // 勝者が存在する場合
-      status = 'Winner is ' + winner;
+      if ('draw' === winner) {
+        status = 'draw...';
+      } else {
+        // 勝者が存在する場合
+        status = 'Winner is ' + winner;
+      }
     } else {
       // 勝者が存在しない場合
       // const status = 'Next player: X';
       // プレイヤーによって表示を切り替える
       status = 'Next player:' +  (this.state.xIsNext? 'X' : 'O');
     }
-
-    // TOOO:勝敗がつかなかった場合の処理実装
-    // let flg;
-    // for (let i=0; i < this.state.squares.length; i++) {
-    //   if (this.state.squares[i] === '-' ) {
-    //     continue;
-    //   }
-    // }
 
     return (
       <div>
