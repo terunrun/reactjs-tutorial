@@ -94,34 +94,36 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      // 盤全体を表すstateを用意する
-      // チュートリアルコードはnullだが、見た目のわかりやすさのため-を設定している
-      squares: Array(9).fill('-'),
-      // 初期プレイヤーを設定する
-      xIsNext: true,
-    };
-  }
+  // Gameコンポーネントでゲーム状態を保持するため不要になる
+  // constructor(props) {
+  //   super(props)
+  //   this.state = {
+  //     // 盤全体を表すstateを用意する
+  //     // チュートリアルコードはnullだが、見た目のわかりやすさのため-を設定している
+  //     squares: Array(9).fill('-'),
+  //     // 初期プレイヤーを設定する
+  //     xIsNext: true,
+  //   };
+  // }
 
-  handleClick(i) {
-    // 元々のstateを直接書き変えないようにするため、元のstateと同等のものを一時的に作成する
-    // チュートリアルコードではsquaresだが、実体が別であることを明示するため要素名を変更している
-    const temp_squares = this.state.squares.slice();
-    // ゲームが終了している場合はマスをクリックしても値が入らないようにする
-    if (calculateWinner(temp_squares)) {
-      return;
-    }
-    // クリックされたマス目だけ、XがプレイヤーならXに、OがプレイヤーならOに値を変更する
-    temp_squares[i] = this.state.xIsNext ? 'X' : 'O';
-    // stateを更新するにはあくまでもsetStateを用いる
-    this.setState({
-      squares: temp_squares,
-      // プレイヤーを反転させる
-      xIsNext: !this.state.xIsNext,
-    });
-  }
+  // Gameコンポーネントへ移す
+  // handleClick(i) {
+  //   // 元々のstateを直接書き変えないようにするため、元のstateと同等のものを一時的に作成する
+  //   // チュートリアルコードではsquaresだが、実体が別であることを明示するため要素名を変更している
+  //   const temp_squares = this.state.squares.slice();
+  //   // ゲームが終了している場合およびすでに選択されているマスはクリックしても値が入らないようにする
+  //   if (calculateWinner(temp_squares) || !(temp_squares[i] === '-')) {
+  //     return;
+  //   }
+  //   // クリックされたマス目だけ、XがプレイヤーならXに、OがプレイヤーならOに値を変更する
+  //   temp_squares[i] = this.state.xIsNext ? 'X' : 'O';
+  //   // stateを更新するにはあくまでもsetStateを用いる
+  //   this.setState({
+  //     squares: temp_squares,
+  //     // プレイヤーを反転させる
+  //     xIsNext: !this.state.xIsNext,
+  //   });
+  // }
 
   renderSquare(i) {
     // 受け取った引数をvalueという名前のprposでSquareコンポーネントに渡す
@@ -132,33 +134,38 @@ class Board extends React.Component {
     // BoardのSquaresの値（各マスのその時の状態）と、クリック時の動作関数をonClickとして渡す
       return(
       <Square
-        value={this.state.squares[i]}
-        onClick={() => this.handleClick(i)}
+        Gameコンポーネントから受け取ったpropsを使用するように変更
+        // value={this.state.squares[i]}
+        value={this.props.squares[i]}
+        // onClick={() => this.handleClick(i)}
+        onClick={() => this.props.onClick(i)}
       />
     );
   }
 
   render() {
-    // 今のstateに対して勝者判定メソッドを呼び出す
-    let winner = calculateWinner(this.state.squares);
-    let status;
-    if (winner) {
-      if ('draw' === winner) {
-        status = 'draw...';
-      } else {
-        // 勝者が存在する場合
-        status = 'Winner is ' + winner;
-      }
-    } else {
-      // 勝者が存在しない場合
-      // const status = 'Next player: X';
-      // プレイヤーによって表示を切り替える
-      status = 'Next player:' +  (this.state.xIsNext? 'X' : 'O');
-    }
+  // Gameコンポーネントでゲーム状態を保持するため不要になる
+    // // 今のstateに対して勝者判定メソッドを呼び出す
+    // const winner = calculateWinner(this.state.squares);
+    // let status;
+    // if (winner) {
+    //   if ('draw' === winner) {
+    //     status = 'draw...';
+    //   } else {
+    //     // 勝者が存在する場合
+    //     status = 'Winner is ' + winner;
+    //   }
+    // } else {
+    //   // 勝者が存在しない場合
+    //   // const status = 'Next player: X';
+    //   // プレイヤーによって表示を切り替える
+    //   status = 'Next player:' +  (this.state.xIsNext? 'X' : 'O');
+    // }
 
     return (
       <div>
-        <div className="status">{status}</div>
+        {/* Gameコンポーネントでゲーム状態を保持するため不要になる */}
+        {/* <div className="status">{status}</div> */}
         <div className="board-row">
           {/* renderSquareメソッドを引数0で呼び出す */}
           {this.renderSquare(0)}
@@ -181,15 +188,101 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+  // ゲームの状態を保持する
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: [{
+        squares: Array(9).fill('-')
+      }],
+      // 着手の番号を設定する
+      stepNumber: 0,
+      xIsNext: true,
+    }
+  }
+
+  // Boardコンポーネントに実装していたクリック時関数をここへ移す
+  handleClick(i) {
+    // 巻き戻した状態から見て将来のものを捨てる
+    // const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
+    const current = history[history.length - 1];
+    const temp_squares = current.squares.slice();
+    if (calculateWinner(temp_squares) || !(temp_squares[i] === '-')) {
+      return;
+    }
+    temp_squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      history: history.concat([{
+        squares: temp_squares,
+      }]),
+      // クリックされた場合に着手番号を更新する
+      stepNumber: history.length,
+      xIsNext: !this.state.xIsNext,
+    });
+  }
+
+  jumpTo(step) {
+    this.setState({
+      stepNumber: step,
+      // 偶数回目の場合はXがプレイヤー
+      xIsNext: (step % 2) === 0,
+    });
+  }
+
   render() {
+    // 現在までのゲーム履歴を取得する
+    const history = this.state.history;
+    // 現在までのゲーム履歴の最後＝現在のゲーム状態を取得する
+    // const current = history[history.length - 1];
+    // ゲーム履歴の最後=現在ではなく、クリックされた着手の順番の状態を取得する
+    const current = history[this.state.stepNumber];
+    // Boardコンポーネントに実装していた勝敗判定をここへ移す
+    const winner = calculateWinner(current.squares);
+
+    // ゲームの履歴を表示する
+    // TODO：定義していないstepが使えるのはなぜか？
+    const moves = history.map((step, move) => {
+      const description = move ?
+        // 着手が存在する場合
+        // TODO：なぜこれで数字が渡るのか？
+        'Go to move' + move :
+        // 着手が存在しない場合
+        'Go to game start';
+      return (
+        // 着手の番号をlistのkeyとする
+        <li key={move}>
+          <button onClick={() => this.jumpTo(move)}>{description}</button>
+        </li>
+      );
+    });
+
+    let status;
+    if (winner) {
+      if ('draw' === winner) {
+        status = 'draw...';
+      } else {
+        // 勝者が存在する場合
+        status = 'Winner is ' + winner;
+      }
+    } else {
+      // 勝者が存在しない場合
+      // const status = 'Next player: X';
+      // プレイヤーによって表示を切り替える
+      status = 'Next player:' +  (this.state.xIsNext? 'X' : 'O');
+    }
+
     return (
       <div className="game">
         <div className="game-board">
-          <Board />
+          <Board
+            squares={current.squares}
+            onClick={(i) => this.handleClick(i)}
+          />
         </div>
         <div className="game-info">
-          <div>{/* status */}</div>
-          <ol>{/* TODO */}</ol>
+          <div>{status}</div>
+          <ol>{moves}</ol>
         </div>
       </div>
     );
